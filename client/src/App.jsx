@@ -106,7 +106,7 @@ function App() {
         <button onClick={handleCreateUser}>Create User</button>
       </div>
 
-      <div style={{ marginBottom: "30px" }}>
+      <div style={{ marginBottom: "31px" }}>
         <h2>Get User by ID</h2>
         <input
           placeholder="Enter user ID"
