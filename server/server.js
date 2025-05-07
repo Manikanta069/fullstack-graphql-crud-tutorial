@@ -1,11 +1,17 @@
+import mongoose from "mongoose";
 import { ApolloServer } from "@apollo/server";
 import { startStandaloneServer } from "@apollo/server/standalone";
+import User from "./User.js"; // Import the Mongoose model
 
-const users = [
-  { id: "1", name: "John Doe", age: 30, isMarried: true },
-  { id: "2", name: "Jane Smith", age: 25, isMarried: false },
-  { id: "3", name: "Alice Johnson", age: 28, isMarried: false },
-];
+// Replace with your MongoDB connection string
+const MONGODB_URI = "mongodb://localhost:27017/mydatabase"; // or Atlas URI
+
+await mongoose.connect(MONGODB_URI, {
+  useNewUrlParser: true,
+  useUnifiedTopology: true,
+});
+
+console.log("✅ MongoDB connected");
 
 const typeDefs = `
     type Query {
@@ -25,30 +31,21 @@ const typeDefs = `
     }
 `;
 
+
 const resolvers = {
   Query: {
-    getUsers: () => {
-      return users;
-    },
-    getUserById: (parent, args) => {
-      const id = args.id;
-      return users.find((user) => user.id === id);
-    },
+    getUsers: async () => await User.find(),
+    getUserById: async (_, { id }) => await User.findById(id),
   },
   Mutation: {
-    createUser: (parent, args) => {
-      const { name, age, isMarried } = args;
-      const newUser = {
-        id: (users.length + 1).toString(),
-        name,
-        age,
-        isMarried,
-      };
-      console.log(newUser);
-      users.push(newUser);
+    createUser: async (_, { name, age, isMarried }) => {
+      const newUser = new User({ name, age, isMarried });
+      await newUser.save();
+      return newUser;
     },
   },
 };
+
 
 const server = new ApolloServer({ typeDefs, resolvers });
 
